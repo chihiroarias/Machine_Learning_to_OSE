@@ -1,0 +1,18 @@
+nombre_de_atributo;descripcion;tipo_de_dato
+region;Región OSE a la que pertenece el departamento.;String
+departamento;Departamento al que pertenece el reclamo o solicitud operativa.;String
+fecha_ingreso;Fecha de ingreso de la solicitud o reclamo operativo.;Date
+id_ro_m;Identificador de la solicitud o reclamo pseudonimizado. El identificador original fue reemplazado por un valor hash irreversible.;String
+tipo_ro;"Clasificación del reclamo operativo. (ej:'Medidor Hurtado').""";"String	"
+tipo_complejidad;"Clasificación  que refiere a la complejidad para el equipo que resuelve (ej:""'Con corte de pavimento', etc).""";String
+ausencia_agua;Indica si se reclama por ausencia de agua.;String
+baja_presion;Indica si se reclama por baja presión.;String
+inunda;Indica si se reclama con inundación.;String
+fecha_resuelto_visita;"Fecha de la ultima visita que resolvió el reclamo si el reclamo tuvo una orden de trabajo asociada (ot); de lo contario, si no hay fecha, se asigna 1900/01/01 (YYYY/MM/DD).";Date
+fecha_resuelto_sistema;"Fecha de cuando se ingresa el estado de resolución al sistema (su fecha real de resolución pudo ser anterior); si no hay fecha, se asigna 1900/01/01 (YYYY/MM/DD).";Date
+tiempo_resolucion_minutos;"Tiempo de resolución del reclamo o solicitud en minutos; en caso que no haya valor se indica -1.";Numeric
+id_centro_tecnico;"identificador del centro técnico que resolvió el reclamo operativo; en caso que no haya valor se indica -1.";Numeric
+estado_resuelto;"estado de resolución del reclamo operativo, con valores posibles: ""'Resuelto Procedente', 'Resuelto Improcedente': en caso que no haya valor se indica 'SIN DATOS'.""";String
+tipo_orden;Tipo de orden de trabajo (ot) que atendía el reclamo: en caso que no haya valor se indica 'SIN DATOS'.;String
+grupo_orden;"Agrupación del tipo de orden de trabajo que atendía el reclamo; en caso que no haya valor se indica 'SIN DATOS'.";String
+fecha_foto;Fecha de cuando se generaron los datos para publicarlos.;Date
