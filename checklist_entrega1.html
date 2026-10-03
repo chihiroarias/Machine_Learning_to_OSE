@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist — Entrega 1 ML (OSE)</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card-bg: #ffffff;
+    --text: #1c2230;
+    --text-dim: #5a6472;
+    --border: #e2e5ea;
+    --accent: #19326E;
+    --accent-soft: #eef1f8;
+    --urgent: #b3261e;
+    --urgent-soft: #fdecea;
+    --warn: #8a5a00;
+    --warn-soft: #fff4dc;
+    --ok: #1e7d45;
+    --ok-soft: #e8f6ee;
+    --done-bg: #eef9f0;
+    --code-bg: #eef0f4;
+    --shadow: 0 1px 2px rgba(20,20,30,0.06), 0 1px 1px rgba(20,20,30,0.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14161c;
+      --card-bg: #1c1f28;
+      --text: #e6e8ee;
+      --text-dim: #9aa2b1;
+      --border: #2c303c;
+      --accent: #7f9cf5;
+      --accent-soft: #232a42;
+      --urgent: #ff8a80;
+      --urgent-soft: #3a1f1e;
+      --warn: #ffcc66;
+      --warn-soft: #3a2f16;
+      --ok: #7fdca4;
+      --ok-soft: #17301f;
+      --done-bg: #16241a;
+      --code-bg: #262a35;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161c;
+    --card-bg: #1c1f28;
+    --text: #e6e8ee;
+    --text-dim: #9aa2b1;
+    --border: #2c303c;
+    --accent: #7f9cf5;
+    --accent-soft: #232a42;
+    --urgent: #ff8a80;
+    --urgent-soft: #3a1f1e;
+    --warn: #ffcc66;
+    --warn-soft: #3a2f16;
+    --ok: #7fdca4;
+    --ok-soft: #17301f;
+    --done-bg: #16241a;
+    --code-bg: #262a35;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0 16px 64px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header {
+    padding: 32px 0 20px;
+  }
+  h1 { font-size: 1.5rem; margin: 0 0 6px; color: var(--text); }
+  .subtitle { color: var(--text-dim); font-size: 0.95rem; }
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 16px;
+  }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 5px 12px; font-size: 0.82rem; font-weight: 600;
+  }
+  .pill.urgent { background: var(--urgent-soft); color: var(--urgent); }
+  .progress-wrap {
+    margin-top: 18px; background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow);
+  }
+  .progress-label { display:flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px;}
+  .progress-bar { height: 8px; background: var(--code-bg); border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width .25s ease; }
+
+  section.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin: 18px 0;
+    box-shadow: var(--shadow);
+  }
+  section.card.urgent { border-left: 4px solid var(--urgent); }
+  section.card.warn { border-left: 4px solid var(--warn); }
+  section.card.ok { border-left: 4px solid var(--ok); }
+  section.card.neutral { border-left: 4px solid var(--accent); }
+
+  .card h2 {
+    font-size: 1.05rem; margin: 0 0 4px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card .card-sub { color: var(--text-dim); font-size: 0.86rem; margin-bottom: 14px; }
+  .badge {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    padding: 2px 8px; border-radius: 6px;
+  }
+  .badge.urgent { background: var(--urgent-soft); color: var(--urgent); }
+  .badge.warn { background: var(--warn-soft); color: var(--warn); }
+  .badge.ok { background: var(--ok-soft); color: var(--ok); }
+  .badge.neutral { background: var(--accent-soft); color: var(--accent); }
+
+  ul.checklist { list-style: none; margin: 0; padding: 0; }
+  ul.checklist li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 6px; border-radius: 8px;
+    cursor: pointer;
+  }
+  ul.checklist li:hover { background: var(--accent-soft); }
+  ul.checklist li input[type="checkbox"] {
+    margin-top: 3px; width: 17px; height: 17px; flex-shrink: 0; accent-color: var(--accent);
+  }
+  ul.checklist li .item-text { flex: 1; font-size: 0.94rem; }
+  ul.checklist li.done { background: var(--done-bg); }
+  ul.checklist li.done .item-text { text-decoration: line-through; color: var(--text-dim); }
+
+  code {
+    background: var(--code-bg); padding: 1px 6px; border-radius: 5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85em;
+  }
+  .note {
+    margin-top: 12px; font-size: 0.86rem; color: var(--text-dim);
+    background: var(--code-bg); border-radius: 8px; padding: 10px 12px;
+  }
+  .note strong { color: var(--text); }
+  table.mini {
+    width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.85rem;
+  }
+  table.mini th, table.mini td {
+    border: 1px solid var(--border); padding: 6px 8px; text-align: left;
+  }
+  table.mini th { background: var(--code-bg); }
+
+  details {
+    margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px;
+  }
+  details summary {
+    cursor: pointer; font-size: 0.85rem; color: var(--accent); font-weight: 600;
+    list-style: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before { content: "▸ "; }
+  details[open] summary::before { content: "▾ "; }
+  details .inner { padding-top: 8px; font-size: 0.88rem; color: var(--text-dim); }
+
+  .toc {
+    display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px;
+  }
+  .toc a {
+    font-size: 0.78rem; color: var(--accent); text-decoration: none;
+    background: var(--accent-soft); padding: 4px 9px; border-radius: 999px;
+  }
+  .toc a:hover { text-decoration: underline; }
+
+  footer { text-align: center; color: var(--text-dim); font-size: 0.8rem; margin-top: 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Checklist — Entrega 1 · Priorizar el despacho de una cuadrilla</h1>
+  <div class="subtitle">Machine Learning · basado en <code>entrega_reclamos_ose.pdf</code> y el estado real de <code>entrega1.ipynb</code></div>
+  <div class="meta-row">
+    <span class="pill urgent">Vence martes 6 de octubre</span>
+    <span class="pill">10% de la nota</span>
+    <span class="pill">Grupos de 4 — hoy figuran 3</span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Progreso marcado en esta página</span><span id="progress-text">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+  <div class="toc">
+    <a href="#urgentes">Urgentes</a>
+    <a href="#entender">Qué comprender</a>
+    <a href="#s1">1</a><a href="#s2">2</a><a href="#s3">3</a><a href="#s4">4</a>
+    <a href="#s5">5</a><a href="#s6">6</a><a href="#s7">7</a><a href="#s8">8</a>
+    <a href="#s9">9</a><a href="#s10">10</a><a href="#s11">11</a><a href="#s12">12</a><a href="#s13">13</a>
+    <a href="#final">Entrega final</a>
+  </div>
+</header>
+
+<section class="card urgent" id="urgentes">
+  <h2>🚨 Arreglar antes de escribir nada <span class="badge urgent">Bloqueante</span></h2>
+  <div class="card-sub">El notebook ya tiene todo el código ejecutado, pero con valores provisorios que el enunciado contradice. Corregir esto primero: cambia la prevalencia, el umbral y todos los montos en dinero de las secciones 3, 4, 6, 7, 8, 9, 10, 11 y 13.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="u1"><span class="item-text">Cambiar <code>PLAZO_HORAS = 48</code> → <strong>72</strong> en la celda de configuración (el plazo comprometido real es de 72 horas).</span></li>
+    <li><input type="checkbox" data-id="u2"><span class="item-text">Cambiar <code>COSTO_PRIORIZAR = 2_000</code> → <strong>45</strong> (USD por reclamo priorizado, se pague o no haga falta).</span></li>
+    <li><input type="checkbox" data-id="u3"><span class="item-text">Cambiar <code>COSTO_INCUMPLIR = 10_000</code> → <strong>270</strong> (USD por reclamo no priorizado que incumple el plazo).</span></li>
+    <li><input type="checkbox" data-id="u4"><span class="item-text">Decidir <code>VOLUMEN_ANUAL</code>: el enunciado da <strong>390 000</strong> como cifra explícita de referencia para la sección 9. Hoy el notebook lo calcula solo como filas del archivo crudo de OSE (390 886). Elegir una de las dos y, si se mantiene el cálculo automático, dejar dicho por qué no se usa el número fijo del enunciado.</span></li>
+    <li><input type="checkbox" data-id="u5"><span class="item-text">Completar el cuarto integrante del grupo (constan Bruno Arias, Daniela Salgado, Santiago Fernandez; el enunciado exige grupos de 4).</span></li>
+    <li><input type="checkbox" data-id="u6"><span class="item-text">Resolver la referencia a <code>enunciado.pdf</code> en la celda 0: el archivo en el repo se llama <code>entrega_reclamos_ose.pdf</code>. Renombrarlo a <code>enunciado.pdf</code> o corregir el texto de la celda para que apunte al nombre real.</span></li>
+    <li><input type="checkbox" data-id="u7"><span class="item-text"><strong>Volver a ejecutar todo el notebook de punta a punta</strong> (Restart &amp; Run All) después de los cambios anteriores — todas las celdas de código (exec 20 a 52) están corridas, pero con los números viejos, así que todos los resultados numéricos posteriores a la celda de configuración quedan invalidados hasta re-ejecutar.</span></li>
+  </ul>
+  <div class="note">Verificado: <code>PLAZO_HORAS</code>, <code>COSTO_PRIORIZAR</code>, <code>COSTO_INCUMPLIR</code> y <code>VOLUMEN_ANUAL</code> se usan <em>solo</em> desde la celda de configuración en todo el notebook (no hay números repetidos a mano en otras celdas), así que corregirlos ahí alcanza para propagar el cambio a todas las secciones.</div>
+</section>
+
+<section class="card warn" id="entender">
+  <h2>🧠 Qué hay que comprender antes de escribir las respuestas <span class="badge warn">Conceptual</span></h2>
+  <div class="card-sub">El enunciado exige que la comprensión sea propia: cualquier integrante puede tener que explicar oralmente cualquier resultado. Estas son las ideas que sostienen casi todas las secciones.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="e1"><span class="item-text"><strong>Disponibilidad temporal.</strong> El modelo corre en el instante en que el reclamo <em>ingresa</em>. Todo lo que se registra al <em>cerrar</em> el reclamo (tiempo real de resolución, centro que lo atendió, tipo de orden de trabajo, si correspondía) o después (encuesta de satisfacción) NO puede ser entrada del modelo. Esa es la base de qué columnas se excluyen en la sección 2 y de qué es "el flujo contaminado" en la sección 8.</span></li>
+    <li><input type="checkbox" data-id="e2"><span class="item-text"><strong>MCAR / MAR / MNAR.</strong> Para cada variable con faltantes hay que decidir el mecanismo y sostenerlo con un contraste (por ejemplo, ¿la tasa de faltantes de X varía según otra variable observada? eso descarta MCAR a favor de MAR). El tratamiento (imputar, descartar, indicador de faltante) se deriva de ese diagnóstico, no al revés.</span></li>
+    <li><input type="checkbox" data-id="e3"><span class="item-text"><strong>Por qué todo va dentro del Pipeline.</strong> Cualquier transformación que "aprende" un número de los datos (media, mediana, escala, lista de categorías) tiene que vivir dentro del <code>ColumnTransformer</code>, para que la validación cruzada la recalcule en cada fold y no haya fuga de información desde el conjunto de validación hacia el de entrenamiento.</span></li>
+    <li><input type="checkbox" data-id="e4"><span class="item-text"><strong>Leakage (sección 8).</strong> Es la brecha de desempeño entre el flujo que usa solo columnas disponibles al ingreso ("honesto") y el que además usa columnas que solo existen al cierre ("contaminado"). Esa brecha es la sobreestimación que el modelo mostraría en papel y no tendría en producción real.</span></li>
+    <li><input type="checkbox" data-id="e5"><span class="item-text"><strong>El umbral por costos (sección 9).</strong> En este problema, priorizar cuesta USD 45 tanto si hacía falta (VP) como si no (FP); no priorizar y que incumpla cuesta USD 270 (FN); no priorizar y que cumpla no cuesta nada (VN). Como el costo de priorizar es el mismo acierte o no, el costo esperado de priorizar un reclamo con probabilidad estimada <code>p</code> de incumplir es <code>45</code>, y el de no priorizarlo es <code>270·p</code>. Conviene priorizar cuando <code>45 &lt; 270·p</code>, es decir cuando <code>p &gt; 45/270 ≈ 0,167</code>. Ese razonamiento (no una búsqueda a ciegas) es lo que hace "derivado" al umbral, y sirve para chequear que el número que salga del código tenga sentido.</span></li>
+    <li><input type="checkbox" data-id="e6"><span class="item-text"><strong>Regla de las tres condiciones para toda justificación</strong> (aplica a las 13 secciones): 1) nombrar la alternativa descartada, 2) decir qué propiedad medida de los datos la descarta (no "buena práctica"), 3) si es medible, mostrar la medición en el notebook.</span></li>
+  </ul>
+</section>
+
+<!-- SECCIONES 1-13 -->
+<section class="card ok" id="s1">
+  <h2>Sección 1 — Ingesta, unión y auditoría <span class="badge ok">Código listo</span></h2>
+  <div class="card-sub">Código y outputs presentes (celdas 4–14). Falta completar el texto de la celda 15.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s1-1"><span class="item-text">Completar la tabla "Trazabilidad de la unión" (filas de OSE crudo, del complemento, tras el filtro, tras la unión) leyendo los números que ya imprime la celda 4.</span></li>
+    <li><input type="checkbox" data-id="s1-2"><span class="item-text">Completar la tabla "Mecanismo de los faltantes" (variable, faltantes, MCAR/MAR/MNAR, contraste, tratamiento) para cada variable con faltantes detectada en las celdas 1.7 y 1.8.</span></li>
+    <li><input type="checkbox" data-id="s1-3"><span class="item-text">Completar el "Informe de hallazgos" (defecto / evidencia / decisión) — cada fila necesita la cifra o el gráfico que la respalda, ya generado en las celdas de arriba.</span></li>
+    <li><input type="checkbox" data-id="s1-4"><span class="item-text">Escribir "Construcción de la respuesta binaria": qué se hizo con los registros donde el plazo de 72 h no se puede evaluar (tiempos imposibles, negativos o faltantes).</span></li>
+  </ul>
+  <details><summary>Recordatorio de la consigna completa</summary><div class="inner">Documentar filas por fuente, filtro y unión sin pérdida ni duplicación; caracterizar dimensiones, tipos, faltantes, repetidos, valores imposibles y cardinalidad; diagnosticar MCAR/MAR/MNAR por variable; construir la respuesta binaria a partir del plazo; cerrar con el informe de hallazgos de tres columnas.</div></details>
+</section>
+
+<section class="card ok" id="s2">
+  <h2>Sección 2 — Preparación dentro de un pipeline <span class="badge ok">Código listo</span></h2>
+  <div class="card-sub">El <code>ColumnTransformer</code> ya está armado (celda 18). Falta el texto de la celda 19.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s2-1"><span class="item-text">Completar la tabla "Columnas excluidas de la matriz de entrada": una fila por columna excluida, motivo, y si la exclusión es por disponibilidad (no existe al ingreso) o por desempeño — y si aplican las dos, cuál manda.</span></li>
+    <li><input type="checkbox" data-id="s2-2"><span class="item-text">Escribir qué limpieza determinista quedó fuera del pipeline y por qué no estima nada de la muestra (para justificar que no penaliza).</span></li>
+  </ul>
+</section>
+
+<section class="card ok" id="s3">
+  <h2>Sección 3 — Línea base <span class="badge ok">Código listo</span></h2>
+  <div class="card-sub">Dummy regressor/classifier ya calculados (celda 21). Falta el texto de la celda 22 — <strong>y volver a leer los números tras corregir el plazo</strong>, porque la prevalencia de "incumple" cambia con 72 h en vez de 48 h.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s3-1"><span class="item-text">Reportar la línea base de regresión (al menos una métrica en horas).</span></li>
+    <li><input type="checkbox" data-id="s3-2"><span class="item-text">Reportar la línea base de clasificación (prevalencia observada con el plazo correcto).</span></li>
+    <li><input type="checkbox" data-id="s3-3"><span class="item-text">Declarar explícitamente que todo lo que sigue se informa contra estas dos líneas base.</span></li>
+  </ul>
+</section>
+
+<section class="card ok" id="s4">
+  <h2>Sección 4 — Regresión sobre el tiempo de resolución <span class="badge ok">Código listo</span></h2>
+  <div class="card-sub">MCO y coeficientes ya calculados (celdas 24–25). Falta el texto de la celda 26.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s4-1"><span class="item-text">Justificar la decisión de modelar en horas o transformado (log), apoyada en la forma de la distribución medida en la sección 1.</span></li>
+    <li><input type="checkbox" data-id="s4-2"><span class="item-text">Interpretar al menos dos coeficientes en unidades del caso (ej. horas por km de distancia, por conexión afectada) — no solo listarlos.</span></li>
+    <li><input type="checkbox" data-id="s4-3"><span class="item-text">Comparar el resultado contra la línea base de la sección 3, en horas.</span></li>
+  </ul>
+</section>
+
+<section class="card ok" id="s5">
+  <h2>Sección 5 — Ridge y Lasso <span class="badge ok">Código listo</span></h2>
+  <div class="card-sub">Grilla logarítmica y ajuste ya corridos (celdas 28–29). Falta el texto de la celda 30.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s5-1"><span class="item-text">Declarar la grilla de λ usada y confirmar si el λ elegido cae en un extremo (si sí, hay que ampliar la grilla).</span></li>
+    <li><input type="checkbox" data-id="s5-2"><span class="item-text">Comparar MCO, Ridge y Lasso sobre la misma validación.</span></li>
+    <li><input type="checkbox" data-id="s5-3"><span class="item-text">Listar e interpretar qué variables anula Lasso.</span></li>
+    <li><input type="checkbox" data-id="s5-4"><span class="item-text">Concluir si la penalización aporta en este problema puntual, con la razón (una conclusión negativa bien argumentada vale).</span></li>
+  </ul>
+</section>
+
+<section class="card ok" id="s6">
+  <h2>Sección 6 — Clasificación del incumplimiento <span class="badge ok">Código listo — revisar tras fix</span></h2>
+  <div class="card-sub">Regresión logística y matriz de confusión ya corridas (celdas 32–33), pero con el plazo/prevalencia viejos. Falta el texto de la celda 34.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s6-1"><span class="item-text">Argumentar qué métricas mandan dada la prevalencia real (con 72 h) — si la clase "incumple" queda desbalanceada, justificar por qué precisión/recall/F1 pesan más que exactitud.</span></li>
+    <li><input type="checkbox" data-id="s6-2"><span class="item-text">Leer la matriz de confusión en palabras del caso.</span></li>
+    <li><input type="checkbox" data-id="s6-3"><span class="item-text">Comparar contra la línea base de clasificación de la sección 3.</span></li>
+  </ul>
+</section>
+
+<section class="card ok" id="s7">
+  <h2>Sección 7 — Validación cruzada <span class="badge ok">Código listo</span></h2>
+  <div class="card-sub">KFold/StratifiedKFold ya aplicados a todos los modelos (celdas 36–37). Falta el texto de la celda 38.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s7-1"><span class="item-text">Reportar media ± desvío de cada modelo (nunca un número solo).</span></li>
+    <li><input type="checkbox" data-id="s7-2"><span class="item-text">Explicar qué decisiones de la sección 1 tuvieron que tomarse <em>antes</em> de particionar (ej. la construcción de la respuesta binaria, el filtro de tiempos imposibles) y por qué hacerlo después contaminaría la partición.</span></li>
+  </ul>
+</section>
+
+<section class="card ok" id="s8">
+  <h2>Sección 8 — El costo del leakage <span class="badge ok">Código listo — revisar tras fix</span></h2>
+  <div class="card-sub">Flujo honesto vs. contaminado ya evaluados (celdas 40–41). Falta el texto de la celda 42.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s8-1"><span class="item-text">Completar la tabla con la métrica de cada flujo y la brecha entre ellos como número.</span></li>
+    <li><input type="checkbox" data-id="s8-2"><span class="item-text">Interpretar la brecha como el desempeño que se aparentaría en validación y no existiría en producción.</span></li>
+    <li><input type="checkbox" data-id="s8-3"><span class="item-text">Confirmar que los dos flujos comparten modelo, preprocesamiento y folds, y difieren solo en columnas de entrada (si no es así, corregirlo en el código antes de escribir la interpretación).</span></li>
+  </ul>
+</section>
+
+<section class="card urgent" id="s9">
+  <h2>Sección 9 — Umbral por costos <span class="badge urgent">Depende del fix de costos</span></h2>
+  <div class="card-sub">Búsqueda de umbral ya corrida (celdas 44–45), pero sobre COSTOS y VOLUMEN_ANUAL provisorios. <strong>Es la sección más sensible al fix de arriba.</strong> Falta el texto de la celda 46.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s9-1"><span class="item-text">Re-derivar el umbral con USD 45 / USD 270 ya cargados, y verificar que el resultado sea consistente con <code>45/270 ≈ 0,167</code> (ver nota conceptual arriba).</span></li>
+    <li><input type="checkbox" data-id="s9-2"><span class="item-text">Completar la tabla de las cuatro políticas (umbral deducido, 0,5, priorizar todos, no priorizar ninguno) en costo por reclamo y costo anual, usando el volumen anual decidido.</span></li>
+    <li><input type="checkbox" data-id="s9-3"><span class="item-text">Si en la sección 6 se remuestreó o ponderaron clases, confirmar que las probabilidades se recalibraron antes de aplicar el umbral (si no se remuestreó, decir explícitamente que no aplica).</span></li>
+  </ul>
+</section>
+
+<section class="card ok" id="s10">
+  <h2>Sección 10 — Tres familias bajo el mismo defecto <span class="badge ok">Código listo</span></h2>
+  <div class="card-sub">Grillas de k y profundidad ya corridas con caché en <code>resultados/seccion10.json</code> (celdas 48–49). Falta el texto de la celda 50.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s10-1"><span class="item-text">Completar la tabla de las cuatro combinaciones (escalado/sin escalar × unidad original/cambiada) para lineal, k vecinos y árbol, con el hiperparámetro elegido en cada caso.</span></li>
+    <li><input type="checkbox" data-id="s10-2"><span class="item-text">Verificar que ningún k ni profundidad elegidos quedaron pegados al borde de la grilla (si es así, hay que ampliarla y re-correr antes de concluir).</span></li>
+    <li><input type="checkbox" data-id="s10-3"><span class="item-text">Explicar por qué las tres familias reaccionan distinto al escalado y al cambio de unidad (lineal y k vecinos dependen de la escala, el árbol no).</span></li>
+    <li><input type="checkbox" data-id="s10-4"><span class="item-text">Si se corrigió algo aguas arriba en la sección 1 que cambie la matriz preparada, confirmar que <code>resultados/seccion10.json</code> se regeneró y no quedó desincronizado con los datos actuales.</span></li>
+  </ul>
+</section>
+
+<section class="card ok" id="s11">
+  <h2>Sección 11 — Reglas de decisión <span class="badge ok">Código listo — revisar tras fix</span></h2>
+  <div class="card-sub">Árbol pequeño y extracción de reglas ya corridos (celdas 52–54), sobre la prevalencia vieja. Falta el texto de la celda 55.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s11-1"><span class="item-text">Justificar la profundidad elegida (que un supervisor de guardia pueda leerla).</span></li>
+    <li><input type="checkbox" data-id="s11-2"><span class="item-text">Completar la tabla de reglas: por hoja, cuántos reclamos caen, tasa de incumplimiento, y contraste contra la prevalencia general (con el plazo de 72 h recalculado).</span></li>
+    <li><input type="checkbox" data-id="s11-3"><span class="item-text">Comparar desempeño contra el clasificador de la sección 6 y discutir la operación (quién aplica la regla, con qué información, en cuánto tiempo) — no solo métricas.</span></li>
+  </ul>
+</section>
+
+<section class="card warn" id="s12">
+  <h2>Sección 12 — Autocrítica del flujo <span class="badge warn">Solo texto</span></h2>
+  <div class="card-sub">Sin código. Se escribe al final, releyendo el resto del notebook ya corregido.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s12-1"><span class="item-text">Elegir una sola decisión metodológica concreta y frágil del propio trabajo (no una limitación genérica del ML ni del dataset).</span></li>
+    <li><input type="checkbox" data-id="s12-2"><span class="item-text">Explicar qué la haría fallar y qué número del notebook cambiaría si estuviera mal (rúbrica: identificar 2 pts, explicar efecto 2 pts, proponer corrección 1 pt).</span></li>
+    <li><input type="checkbox" data-id="s12-3"><span class="item-text">Decir qué evidencia adicional confirmaría o descartaría esa fragilidad.</span></li>
+  </ul>
+</section>
+
+<section class="card warn" id="s13">
+  <h2>Sección 13 — Conclusiones y límites <span class="badge warn">Solo texto — depende de todo lo anterior</span></h2>
+  <div class="card-sub">Escribir al final, con todos los números ya corregidos y re-ejecutados.</div>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="s13-1"><span class="item-text">Recomendación a la organización con desempeño y costo, contra la línea base de la sección 3, expresada en dinero.</span></li>
+    <li><input type="checkbox" data-id="s13-2"><span class="item-text">Límites propios de este caso (no genéricos): lo que la auditoría de la sección 1 y la validación de la sección 7 dejaron a la vista, incluyendo que las tres columnas del complemento son didácticas y no un diagnóstico de gestión real de OSE.</span></li>
+  </ul>
+</section>
+
+<section class="card neutral" id="final">
+  <h2>✅ Antes de entregar</h2>
+  <ul class="checklist">
+    <li><input type="checkbox" data-id="f1"><span class="item-text">Notebook ejecutado de punta a punta después de todos los fixes (Restart &amp; Run All), con todas las salidas visibles y en orden.</span></li>
+    <li><input type="checkbox" data-id="f2"><span class="item-text">Cada afirmación de texto corresponde a un número o gráfico visible en el notebook (una conclusión sin respaldo se corrige como si no estuviera).</span></li>
+    <li><input type="checkbox" data-id="f3"><span class="item-text">Los cuatro integrantes pueden explicar oralmente cualquier fragmento de código, resultado o análisis entregado.</span></li>
+    <li><input type="checkbox" data-id="f4"><span class="item-text">La ruta del archivo de OSE descargado sigue declarada en una única celda (ya lo está: <code>RUTA_OSE</code>).</span></li>
+    <li><input type="checkbox" data-id="f5"><span class="item-text">Commit y push final en la rama <code>entrega/1</code> antes del martes 6 de octubre.</span></li>
+  </ul>
+</section>
+
+<footer>Generado a partir de una lectura de <code>entrega_reclamos_ose.pdf</code> y del estado real de <code>entrega1.ipynb</code> el 2026-09-27. El progreso marcado se guarda solo en este navegador (localStorage).</footer>
+</div>
+
+<script>
+(function () {
+  var items = document.querySelectorAll('ul.checklist li');
+  function key(id) { return 'entrega1-checklist:' + id; }
+  function updateProgress() {
+    var boxes = document.querySelectorAll('input[type="checkbox"]');
+    var total = boxes.length, done = 0;
+    boxes.forEach(function (b) { if (b.checked) done++; });
+    var pct = total ? Math.round((done / total) * 100) : 0;
+    var fill = document.getElementById('progress-fill');
+    var text = document.getElementById('progress-text');
+    if (fill) fill.style.width = pct + '%';
+    if (text) text.textContent = pct + '% (' + done + '/' + total + ')';
+  }
+  items.forEach(function (li) {
+    var box = li.querySelector('input[type="checkbox"]');
+    if (!box) return;
+    var id = box.getAttribute('data-id');
+    try {
+      if (localStorage.getItem(key(id)) === '1') {
+        box.checked = true;
+        li.classList.add('done');
+      }
+    } catch (e) {}
+    function toggle() {
+      box.checked = !box.checked;
+      li.classList.toggle('done', box.checked);
+      try { localStorage.setItem(key(id), box.checked ? '1' : '0'); } catch (e) {}
+      updateProgress();
+    }
+    li.addEventListener('click', function (ev) {
+      if (ev.target === box) { li.classList.toggle('done', box.checked); try { localStorage.setItem(key(id), box.checked ? '1' : '0'); } catch (e) {} updateProgress(); return; }
+      toggle();
+    });
+  });
+  updateProgress();
+})();
+</script>
+</body>
+</html>
